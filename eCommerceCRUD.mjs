@@ -15,7 +15,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'https://ecom-25516.web.app', '*'],
+    origin: ['http://localhost:3000', 'https://my-product-app-react.web.app', '*'],
+
     credentials: true
 }));
 
