@@ -3,8 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -45,7 +43,9 @@ export default function SignUp() {
             lastName: data.get('lastName'),
             email: data.get('email'),
             password: data.get('password'),
-            agree: data.get('agree'),
+            address: data.get('address'),
+            gender: data.get('gender'),
+
         });
 
 
@@ -55,7 +55,10 @@ export default function SignUp() {
                 firstName: data.get('firstName'),
                 lastName: data.get('lastName'),
                 email: data.get('email'),
-                password: data.get('password')
+                password: data.get('password'),
+                address: data.get('address'),
+                gender: data.get('gender'),
+
             })
             console.log("response", response.data.message);
 
@@ -131,23 +134,24 @@ export default function SignUp() {
 
                             <Grid item xs={12}>
                                 <TextField
+                                    className='signunp'
                                     required
                                     fullWidth
                                     name="address"
-                                    label="Address"
+                                    label="address"
                                     type="text"
                                     id="address"
+                                    autoComplete="address"
 
                                 />
                             </Grid>
-
-
                             <Grid item xs={12}>
-                                <FormControlLabel
-                                    control={<Checkbox value="allowExtraEmails" name="agree" color="primary" />}
-                                    label="I want to receive inspiration, marketing promotions and updates via email."
-                                />
+
+                                <input type="radio" name="gender" value="Male" /> Male
+                                <input className='gander_inp' type="radio" name="gender" value="Female" /> Female
+
                             </Grid>
+
                         </Grid>
                         <Button
                             type="submit"
@@ -166,7 +170,7 @@ export default function SignUp() {
                         </Grid>
                     </Box>
                 </Box>
-                <Copyright sx={{ mt: 5 }} />
+                <Copyright sx={{ mt: 3 }} />
             </Container>
         </ThemeProvider>
     );

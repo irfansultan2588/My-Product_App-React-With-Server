@@ -7,6 +7,9 @@ export const reducer = (state, action) => {
         case "USER_LOGOUT": {
             return { ...state, user: null, isLogin: false }
         }
+        case "CART_ITEM": {
+            return { ...state, addcart: action.payload }
+        }
         case "CHANGE_THEME": {
             return { ...state, darkTheme: !state.darkTheme }
         }

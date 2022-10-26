@@ -6,23 +6,20 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+// import { json } from 'react-router-dom';
 
 
-
-
-
-let Product = () => {
+const UserProduct = () => {
 
     let { state, dispatch } = useContext(GlobalContext);
     let [products, setProducts] = useState([]);
     let [editProduct, setEditProduct] = useState(null);
     let [loading, setLoading] = useState(false);
     let [toggleReload, setToggleReload] = useState(false);
-
-
     const [open, setOpen] = React.useState(false);
     const [fullWidth, setFullWidth] = React.useState(true);
     const [maxWidth, setMaxWidth] = React.useState('sm');
+
 
 
 
@@ -50,11 +47,6 @@ let Product = () => {
         getAllProducts();
 
     }, [toggleReload]);
-
-
-
-
-
 
 
     let updateHandler = async (e) => {
@@ -93,10 +85,26 @@ let Product = () => {
     };
 
 
+    const addToCard = (item) => {
 
+        if (state.addcart.some(a => a._id == item._id)) {
+            return;
+
+        } else {
+            const cartItem = [...state?.addcart, item]
+            dispatch({
+                type: "CART_ITEM",
+                payload: cartItem,
+            });
+            localStorage.setItem("cartItem", JSON.stringify(cartItem))
+            console.log(item._id);
+        }
+
+
+    };
 
     return (
-        <div >
+        <>
 
             <Dialog
                 fullWidth={fullWidth}
@@ -125,7 +133,7 @@ let Product = () => {
                                 <h5> Description:</h5>
                                 <input type="description" onChange={(e) => { setEditProduct({ ...editProduct, description: e.target.value }) }} value={editProduct.description} />
                             </div>
-                            {/* <button type="submit"> Proceed Update </button> */}
+
                         </form>
                     </div>) : null}
 
@@ -158,50 +166,59 @@ let Product = () => {
                             <p className='description'>{eachProduct?.description}</p>
                         </div>
 
-                        <div className="btnDiv">
-                            <button className='productDelete' onClick={async () => {
-                                try {
+                        {
+                            state?.user?._id === eachProduct?.createdBy ? <div className="btnDiv">
+                                <button className='productDelete' onClick={async () => {
+                                    try {
 
-                                    setLoading(true)
+                                        setLoading(true)
 
-                                    let deleted = await
-                                        axios.delete(`${state.baseUrl}/product/${eachProduct?._id}`,
-                                            {
-                                                withCredentials: true
-                                            })
-                                    console.log("deleted: ", deleted.data);
-                                    setLoading(false)
+                                        let deleted = await
+                                            axios.delete(`${state.baseUrl}/product/${eachProduct?._id}`,
+                                                {
+                                                    withCredentials: true
+                                                })
+                                        console.log("deleted: ", deleted.data);
+                                        setLoading(false)
 
-                                    setToggleReload(!toggleReload);
+                                        setToggleReload(!toggleReload);
 
-                                } catch (e) {
-                                    console.log("Error in api call: ", e);
-                                    setLoading(false)
+                                    } catch (e) {
+                                        console.log("Error in api call: ", e);
+                                        setLoading(false)
+                                    }
+
+                                }}>Delete Product</button>
+
+                                <button className='productEdit' onClick={() => {
+                                    setEditProduct({
+                                        _id: eachProduct._id,
+                                        productPicture: eachProduct?.productPicture,
+                                        title: eachProduct?.title,
+                                        price: eachProduct?.price,
+                                        condition: eachProduct?.condition,
+                                        description: eachProduct?.description,
+                                    })
+                                    setOpen(true)
                                 }
+                                }>Update Product</button>
+                            </div> : <div className="btnDiv">
+                                <button className='productDelete' onClick={() => addToCard(eachProduct)}>
+                                    add to card</button>
 
-                            }}>Delete product</button>
+                                <button className='productEdit' >Buy Now</button>
+                            </div>
+                        }
 
-                            <button className='productEdit' onClick={() => {
-                                setEditProduct({
-                                    _id: eachProduct._id,
-                                    productPicture: eachProduct?.productPicture,
-                                    title: eachProduct?.title,
-                                    price: eachProduct?.price,
-                                    condition: eachProduct?.condition,
-                                    description: eachProduct?.description,
-                                })
-                                setOpen(true)
-                            }
-                            }>Edit Product</button>
-                        </div>
 
                     </div>
                 ))}
             </div>
 
 
-        </div >
-    );
+
+        </>
+    )
 }
 
-export default Product;
+export default UserProduct

@@ -24,6 +24,10 @@ const Profile = () => {
                         <br />
                         email: {state.user?.email}
                         <br />
+                        address: {state.user?.address}
+                        <br />
+                        gender: {state.user?.gender}
+                        <br />
                     </div>
             }
 

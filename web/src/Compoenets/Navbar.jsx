@@ -2,9 +2,22 @@ import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { GlobalContext } from '../Context';
 import axios from "axios"
+import { styled } from '@mui/material/styles';
+import images from '../assets/img.png'
+import Button from 'react-bootstrap/Button';
+import Container from 'react-bootstrap/Container';
+import Form from 'react-bootstrap/Form';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { Badge } from "@mui/material";
 
 
-const Navbar = () => {
+
+
+
+///////navber/////////
+const NavbarComponent = () => {
 
     let { state, dispatch } = useContext(GlobalContext);
 
@@ -28,36 +41,73 @@ const Navbar = () => {
         }
 
     }
+    const SearchIconWrapper = styled('div')(({ theme }) => ({
+        position: 'absolute',
 
+    }));
 
     return <>
-        <nav className='nav_2'>
-            <div className="userName"> {state?.user?.firstName} {state?.user?.lastName}</div>
 
+        <Navbar bg="#fff" expand="lg">
+            <Container fluid>
+                <Navbar.Brand href="#"> <img src={images} alt="logo" className="img_logo" /></Navbar.Brand>
+                <Navbar.Toggle aria-controls="navbarScroll" />
+                <Navbar.Collapse id="navbarScroll">
+                    <Form className="d-flex">
+                        <Form.Control
+                            type="search"
+                            placeholder="Search"
+                            className="me-2 inpsearch"
+                            aria-label="Search"
 
+                        />
+                        <Button className="btn33" >Search</Button>
+                    </Form>
+                    <Nav
+                        className="me-auto my-2 my-lg-0"
+                        style={{ maxHeight: '100px' }}
+                        navbarScroll
+                    >
 
-            {(state.isLogin === true) ?
-                <ul>
-                    <li><Link to="/Createproducts">Create Products</Link> </li>
-                    <li><Link to="/">Products</Link> </li>
-                    <li><Link to="/Profile">Profile</Link> </li>
-                    <li><Link to="/login" onClick={logouthandler}>Logout</Link></li>
-                </ul>
-                :
-                null
-            }
+                        {(state.isLogin === true) ?
+                            <>
 
-            {(state.isLogin === false) ?
+                                <Badge badgeContent={state?.addcart?.length} sx={{
+                                    "& .MuiBadge-badge": {
+                                        color: "#fff",
+                                        backgroundColor: "#f85606 !important"
+                                    }
+                                }}>
+                                    <Nav.Link> <Link to="AddToCart"><button className="nav-icons"> <ShoppingCartIcon /></button></Link> </Nav.Link>
+                                </Badge>
+                                <Nav.Link> <Link to="/"> <button className="navBtn">My Products</button></Link> </Nav.Link>
+                                <Nav.Link> <Link to="/Createproducts"><button className="navBtn">CreateProducts</button></Link></Nav.Link>
+                                <Nav.Link> <Link to="/product"><button className="navBtn">Products</button></Link> </Nav.Link>
+                                <Nav.Link> <Link to="/Profile"><button className="navBtn">Profile</button></Link> </Nav.Link>
+                                <Nav.Link> <Link to="/login" onClick={logouthandler}><button className="navBtn">Logout</button></Link> </Nav.Link>
 
-                <ul>
-                    <li><Link to="/login">Login</Link></li>
-                    <li><Link to="/signup">Signup</Link></li>
-                </ul>
-                :
-                null
-            }
-        </nav>
+                            </>
+                            :
+                            null
+                        }
+
+                        {(state.isLogin === false) ?
+
+                            <>
+
+                                <Nav.Link> <Link to="/itemCarts"><button className="nav-icons"> <ShoppingCartIcon /></button></Link> </Nav.Link>
+                                <Nav.Link> <Link to="/login"> <button className="navBtn"> Login</button></Link> </Nav.Link>
+                                <Nav.Link>  <Link to="/signup"><button className="navBtn">Signup</button></Link> </Nav.Link>
+                            </>
+                            :
+                            null
+                        }
+                    </Nav>
+
+                </Navbar.Collapse>
+            </Container>
+        </Navbar>
     </>
 }
 
-export default Navbar
+export default NavbarComponent

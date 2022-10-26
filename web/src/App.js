@@ -17,6 +17,9 @@ import { GlobalContext } from './Context';
 import axios from 'axios';
 import loddingimage from './assets/loading-1.webp'
 import Createproducts from './Compoenets/Createproducts';
+import UserProduct from './Compoenets/UserProduct';
+import AddToCart from './Compoenets/AddToCart'
+
 
 
 
@@ -80,8 +83,11 @@ function App() {
             <Route path="/Profile" element={<Profile />} />
             <Route path="/logout" element={<Logout />} />
             <Route path="/Createproducts" element={<Createproducts />} />
-            <Route path="/" element={<Products />} />
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route path="/Product" element={<Products />} />
+            <Route path="/" element={<UserProduct />} />
+            <Route path="/login" element={<UserProduct />} />
+            <Route path="/AddToCart" element={<AddToCart />} />
+
           </>
           :
           null
@@ -92,7 +98,7 @@ function App() {
           <>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="*" element={<Navigate to="/login" />} />
+            <Route path="/" element={<UserProduct />} />
 
           </>
           :
