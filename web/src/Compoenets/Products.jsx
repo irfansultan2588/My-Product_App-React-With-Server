@@ -38,7 +38,7 @@ let Product = () => {
                 if (response.status === 200) {
                     console.log("response: ", response.data.data);
 
-                    setProducts(response.data.data.reverse());
+                    setProducts(response?.data?.data?.reverse());
 
                 } else {
                     console.log("error in api call")
