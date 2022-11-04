@@ -83,8 +83,9 @@ const NavbarComponent = () => {
                                 <Nav.Link> <Link to="/"> <button className="navBtn">My Products</button></Link> </Nav.Link>
                                 <Nav.Link> <Link to="/Createproducts"><button className="navBtn">CreateProducts</button></Link></Nav.Link>
                                 <Nav.Link> <Link to="/product"><button className="navBtn">Products</button></Link> </Nav.Link>
+                                <Nav.Link> <Link to="/MyOrder"><button className="navBtn">MyOrder</button></Link> </Nav.Link>
                                 <Nav.Link> <Link to="/Profile"><button className="navBtn">Profile</button></Link> </Nav.Link>
-                                <Nav.Link> <Link to="/login" onClick={logouthandler}><button className="navBtn">Logout</button></Link> </Nav.Link>
+                                <Nav.Link> <Link to="/" onClick={logouthandler}><button className="navBtn">Logout</button></Link> </Nav.Link>
 
                             </>
                             :
@@ -95,7 +96,14 @@ const NavbarComponent = () => {
 
                             <>
 
-                                <Nav.Link> <Link to="/itemCarts"><button className="nav-icons"> <ShoppingCartIcon /></button></Link> </Nav.Link>
+                                <Badge badgeContent={state?.addcart?.length} sx={{
+                                    "& .MuiBadge-badge": {
+                                        color: "#fff",
+                                        backgroundColor: "#f85606 !important"
+                                    }
+                                }}>
+                                    <Nav.Link> <Link to="AddToCart"><button className="nav-icons"> <ShoppingCartIcon /></button></Link> </Nav.Link>
+                                </Badge>
                                 <Nav.Link> <Link to="/login"> <button className="navBtn"> Login</button></Link> </Nav.Link>
                                 <Nav.Link>  <Link to="/signup"><button className="navBtn">Signup</button></Link> </Nav.Link>
                             </>

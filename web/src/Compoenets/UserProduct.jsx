@@ -6,7 +6,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-// import { json } from 'react-router-dom';
+import { json } from 'react-router-dom';
 
 
 const UserProduct = () => {
@@ -86,7 +86,7 @@ const UserProduct = () => {
 
 
     const addToCard = (item) => {
-
+        item.count = 1
         if (state.addcart.some(a => a._id == item._id)) {
             return;
 
@@ -143,8 +143,9 @@ const UserProduct = () => {
                 </DialogActions>
             </Dialog>
 
-            <h1 className='productHeading'>Products Page</h1>
+            <h1 className='productHeading'>User Products</h1>
             <div className='card_container'>
+
                 {products?.map(eachProduct => (
                     <div className='card-produdct23' key={eachProduct?._id}>
 

@@ -19,6 +19,13 @@ import loddingimage from './assets/loading-1.webp'
 import Createproducts from './Compoenets/Createproducts';
 import UserProduct from './Compoenets/UserProduct';
 import AddToCart from './Compoenets/AddToCart'
+import CheckOut from './Compoenets/CheckOut';
+import CheckoutSuccess from './Compoenets/CheckoutSuccess';
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js"
+import MyOrder from './Compoenets/MyOrder';
+
+
 
 
 
@@ -61,65 +68,75 @@ function App() {
   }, [])
 
 
+  const stripePromise = loadStripe('pk_test_51LyAG3FNaO2pyCZjBH1FWkvQqTWRnE5fJ2hh38e4dxiVUC85DeFGtdLmXdatrZq2XpDTLyPpdq0HFGX8lq8U63Uf00supvSUGV');
 
 
 
   return (
-    <Router>
+
+    <Elements stripe={stripePromise}>
+
+      <Router>
 
 
-      <Navbar />
-
-
-
-      <Routes>
-
-        {(state.isLogin === true) ?
-
-          <>
+        <Navbar />
 
 
 
-            <Route path="/Profile" element={<Profile />} />
-            <Route path="/logout" element={<Logout />} />
-            <Route path="/Createproducts" element={<Createproducts />} />
-            <Route path="/Product" element={<Products />} />
-            <Route path="/" element={<UserProduct />} />
-            <Route path="/login" element={<UserProduct />} />
-            <Route path="/AddToCart" element={<AddToCart />} />
+        <Routes>
 
-          </>
-          :
-          null
-        }
+          {(state.isLogin === true) ?
 
-        {(state.isLogin === false) ?
-
-          <>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/" element={<UserProduct />} />
-
-          </>
-          :
-          null
-        }
+            <>
 
 
-        {(state.isLogin === null) ?
+              <Route path="/Profile" element={<Profile />} />
+              <Route path="/logout" element={<UserProduct />} />
+              <Route path="/Createproducts" element={<Createproducts />} />
+              <Route path="/Product" element={<Products />} />
+              <Route path="/" element={<UserProduct />} />
+              <Route path="/login" element={<UserProduct />} />
+              <Route path="/AddToCart" element={<AddToCart />} />
+              <Route path="/CheckOut" element={<CheckOut />} />
+              <Route path="/checkout-success" element={<CheckoutSuccess />} />
+              <Route path="/MyOrder" element={<MyOrder />} />
 
-          <>
-            <Route path="*" element={
-              <div className='image_container234'>
-                <img src={loddingimage} alt='loding_image' />
-              </div>
-            } />
-          </>
-          :
-          null
-        }
-      </Routes>
-    </Router >
+            </>
+            :
+            null
+          }
+
+          {(state.isLogin === false) ?
+
+            <>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/" element={<UserProduct />} />
+              <Route path="/AddToCart" element={<AddToCart />} />
+
+            </>
+            :
+            null
+          }
+
+
+          {(state.isLogin === null) ?
+
+            <>
+              <Route path="*" element={
+                <div className='image_container234'>
+                  <img src={loddingimage} alt='loding_image' />
+                </div>
+              } />
+            </>
+            :
+            null
+          }
+        </Routes>
+      </Router >
+
+    </Elements>
+
   );
 }
 

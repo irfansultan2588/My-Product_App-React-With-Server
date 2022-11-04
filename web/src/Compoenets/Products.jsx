@@ -44,7 +44,7 @@ let Product = () => {
                     console.log("error in api call")
                 }
             } catch (e) {
-                console.log("Error in api call: ", e);
+                console.log("Error in api call: ", e.message);
             }
         }
         getAllProducts();

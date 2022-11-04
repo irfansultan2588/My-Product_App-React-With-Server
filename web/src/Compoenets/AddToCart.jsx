@@ -1,8 +1,49 @@
-import { React, useContext } from 'react'
-import { GlobalContext } from '../Context';
+import React, { useContext, useEffect, } from 'react'
+import { useState } from 'react'
+import { GlobalContext } from '../Context'
+import axios from 'axios'
+import { Link } from "react-router-dom";
+
+
+
+
+
+
+
 
 const AddToCart = () => {
+    let [products, setProducts] = useState([]);
+    let [toggleReload, setToggleReload] = useState(false);
+
+
+    useEffect(() => {
+
+        const getAllProducts = async () => {
+            try {
+                let response = await axios({
+                    url: `${state.baseUrl}/products`,
+                    method: "get",
+                    withCredentials: true
+                })
+                if (response.status === 200) {
+                    console.log("response: ", response.data.data);
+
+                    setProducts(response.data.data.reverse());
+
+                } else {
+                    console.log("error in api call")
+                }
+            } catch (e) {
+                console.log("Error in api call: ", e);
+            }
+        }
+        getAllProducts();
+
+    }, [toggleReload]);
+
+
     let { state, dispatch } = useContext(GlobalContext);
+
     console.log(state.addcart, 'state.addcart');
 
     const addCartDelete = (items) => {
@@ -43,7 +84,7 @@ const AddToCart = () => {
 
                                 <div className='price-btn-containor'>
                                     <div className='cart-containor'>
-                                        <h5 className='price-cart'>Rs, {item.price}</h5>
+                                        <h5 className='price-cart'>Rs. {item.price}</h5>
                                     </div>
 
                                     <div>
@@ -58,7 +99,21 @@ const AddToCart = () => {
                     )
                 })
             }
+
+
+            <div className='checkout_btn'>
+
+                <Link to="/CheckOut">
+                    <button id='btn_check'>Check Out</button>
+                </Link>
+
+            </div>
+
+
+
         </div>
+
+
 
     )
 }

@@ -7,6 +7,8 @@ import { stringToHash, varifyHash, } from "bcrypt-inzi"
 import fs from 'fs';
 import multer from 'multer';
 import admin from "firebase-admin";
+import Stripe from 'stripe'
+
 
 const serviceAccount = {
     "type": "service_account",
@@ -25,7 +27,8 @@ admin.initializeApp({
     databaseURL: "https://my-product-app-react.firebaseio.com"
 });
 const bucket = admin.storage().bucket("gs://my-product-app-react.appspot.com");
-
+// const PUBLISHABLE_KEY = "pk_test_51LyAG3FNaO2pyCZjBH1FWkvQqTWRnE5fJ2hh38e4dxiVUC85DeFGtdLmXdatrZq2XpDTLyPpdq0HFGX8lq8U63Uf00supvSUGV"
+// const SECRET_KEY = "sk_test_51LyAG3FNaO2pyCZj2ZeL0ZY6bWqmKhIkmNIHPtpy4yo5IWpyoEWtjyeqP5NN7hqsQykXugUdnQDNKUg1nA3tJ6FI00zrGM36UW"
 
 
 const storageConfig = multer.diskStorage({
@@ -37,6 +40,7 @@ const storageConfig = multer.diskStorage({
     }
 })
 const upload = multer({ storage: storageConfig })
+
 
 
 let dbURI = process.env.MONGODBURI || 'mongodb+srv://abc:abc@cluster0.jqfzaar.mongodb.net/eCommerceCRUD?retryWrites=true&w=majority';
@@ -74,8 +78,92 @@ const productSchema = new mongoose.Schema({
     price: { type: String, required: true },
     createdOn: { type: Date, default: Date.now },
     createdBy: { type: String, required: true },
+    count: { type: Number },
+
 });
 const productModel = mongoose.model('products', productSchema);
+
+
+const Schema = mongoose.Schema;
+
+const OrderSchema = new Schema({
+    id: { type: String },
+    cartItems: [productSchema],
+    amount: { type: String, required: true },
+    createdBy: { type: String, },
+    date_added: { type: Date, default: Date.now }
+})
+
+const OrderModel = mongoose.model('order', OrderSchema);
+
+
+app.post("/signup", (req, res) => {
+
+    let body = req.body;
+
+    if (!body.firstName
+        || !body.lastName
+        || !body.email
+        || !body.password
+        || !body.address
+        || !body.gender
+    ) {
+        res.status(400).send(
+            `required fields missing, request example: 
+                {
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "email": "abc@abc.com",
+                    "password": "12345"
+                     "address": "korangi no 1"
+                     "gender": "Male"
+                }`
+        );
+        return;
+    }
+
+
+
+
+    userModel.findOne({ email: body.email }, (err, user) => {
+        if (!err) {
+            console.log("user: ", user);
+
+            if (user) { // user already exist
+                console.log("user already exist: ", user);
+                res.status(400).send({ message: "user already exist, please try a different email" });
+                return;
+
+            } else { // user not already exist
+
+                stringToHash(body.password).then(hashString => {
+
+                    userModel.create({
+                        firstName: body.firstName,
+                        lastName: body.lastName,
+                        email: body.email.toLowerCase(),
+                        password: hashString,
+                        address: body.address,
+                        gender: body.gender,
+                    });
+                    (err, result) => {
+                        if (!err) {
+                            console.log("data saved: ", result);
+                            res.status(201).send({ message: "user is created" });
+                        } else {
+                            console.log("db error: ", err);
+                            res.status(500).send({ message: "internal server error" });
+                        }
+                    };
+                })
+
+            }
+        } else {
+            console.log("db error: ", err);
+            res.status(500).send({ message: "db error in query" });
+        }
+    })
+});
 
 app.post("/login", (req, res) => {
 
@@ -161,93 +249,71 @@ app.post("/login", (req, res) => {
         })
 });
 
+app.get("/products", async (req, res) => {
 
-app.post("/logout", (req, res) => {
+    try {
+        const products = await productModel.find({}).exec();
+        console.log("all product: ", products);
 
-
-    res.cookie('Token', '', {
-        maxAge: 0,
-        httpOnly: true
-    });
-
-    res.send({ message: "Logout successful", });
-
-
-
-
-
-});
-
-
-
-app.post("/signup", (req, res) => {
-
-    let body = req.body;
-
-    if (!body.firstName
-        || !body.lastName
-        || !body.email
-        || !body.password
-        || !body.address
-        || !body.gender
-    ) {
-        res.status(400).send(
-            `required fields missing, request example: 
-                {
-                    "firstName": "John",
-                    "lastName": "Doe",
-                    "email": "abc@abc.com",
-                    "password": "12345"
-                     "address": "korangi no 1"
-                     "gender": "Male"
-                }`
-        );
-        return;
+        res.send({
+            message: "all products",
+            data: products
+        });
+    } catch (error) {
+        res.status(500).send({
+            message: "faild to get product"
+        });
     }
+})
+
+const stripe = new Stripe('sk_test_51LyAG3FNaO2pyCZj2ZeL0ZY6bWqmKhIkmNIHPtpy4yo5IWpyoEWtjyeqP5NN7hqsQykXugUdnQDNKUg1nA3tJ6FI00zrGM36UW')
+
+app.post("/create-checkout-session", async (req, res) => {
 
 
+    const { id, amount, createdBy } = req.body;
 
-
-    userModel.findOne({ email: body.email }, (err, user) => {
-        if (!err) {
-            console.log("user: ", user);
-
-            if (user) { // user already exist
-                console.log("user already exist: ", user);
-                res.status(400).send({ message: "user already exist, please try a different email" });
-                return;
-
-            } else { // user not already exist
-
-                stringToHash(body.password).then(hashString => {
-
-                    userModel.create({
-                        firstName: body.firstName,
-                        lastName: body.lastName,
-                        email: body.email.toLowerCase(),
-                        password: hashString,
-                        address: body.address,
-                        gender: body.gender,
-                    });
-                    (err, result) => {
-                        if (!err) {
-                            console.log("data saved: ", result);
-                            res.status(201).send({ message: "user is created" });
-                        } else {
-                            console.log("db error: ", err);
-                            res.status(500).send({ message: "internal server error" });
-                        }
-                    };
-                })
-
+    try {
+        const payment = await stripe.paymentIntents.create({
+            amount,
+            currency: "USD",
+            description: "success",
+            payment_method: id,
+            confirm: true,
+            metadata: {
+                createdBy
             }
-        } else {
-            console.log("db error: ", err);
-            res.status(500).send({ message: "db error in query" });
-        }
-    })
-});
+        });
+        console.log(createdBy, "createdBy==");
 
+        console.log(payment);
+
+        const neworder = new OrderModel({
+
+            id: req.body.id,
+            cartItems: req.body.cartItems,
+            amount: req.body.amount,
+            createdBy: req.body.createdBy,
+            date_added: req.body.date_added
+        })
+        neworder.save(function (err, result) {
+            console.log(err);
+            console.log(result);
+        })
+
+        return res.status(200).json({
+            // alert=('you bought success'),
+            confirm: "success"
+        })
+    }
+    catch (error) {
+        // console.log(error, "naya")
+        return res.status(400).json({
+            message: error.message,
+        })
+
+    }
+});
 
 
 app.use(function (req, res, next) {
@@ -279,7 +345,23 @@ app.use(function (req, res, next) {
     });
 })
 
+app.get("/orderlist", async (req, res) => {
 
+    try {
+        const orderlist = await OrderModel.find({}).exec();
+        res.send({
+            message: "all oderList",
+            data: orderlist
+        });
+
+    } catch (error) {
+        console.log("error", error)
+        res.status(500).send({ message: "error getting orders" });
+    }
+})
+
+
+////////////////////////////////
 app.get("/profile", async (req, res) => {
 
     try {
@@ -292,23 +374,22 @@ app.get("/profile", async (req, res) => {
 })
 
 
+app.post("/logout", (req, res) => {
 
-app.get("/products", async (req, res) => {
 
-    try {
-        const products = await productModel.find({}).exec();
-        console.log("all product: ", products);
+    res.cookie('Token', '', {
+        maxAge: 0,
+        httpOnly: true
+    });
 
-        res.send({
-            message: "all products",
-            data: products
-        });
-    } catch (error) {
-        res.status(500).send({
-            message: "faild to get product"
-        });
-    }
-})
+    res.send({ message: "Logout successful", });
+
+
+
+
+
+});
+
 
 app.get("/product/:id", async (req, res) => {
 
@@ -431,79 +512,7 @@ app.delete("/product/:id", async (req, res) => {
     }
 })
 
-// app.post("/userProduct", upload.any(), async (req, res) => {
 
-//     console.log("userprouct received: ", req.files);
-//     try {
-
-//         bucket.upload(
-//             req.files[0].path,
-//             {
-//                 destination: `productPicture/${req.files[0].filename}`,
-//             },
-
-//             function (err, file, apiResponse) {
-//                 if (!err) {
-
-//                     file.getSignedUrl({
-//                         action: 'read',
-//                         expires: '03-09-2491'
-//                     }).then(async (urlData, err) => {
-//                         if (!err) {
-//                             console.log("public downloadable url: ", urlData)
-
-//                             const newProduct = new productModel({
-//                                 productPicture: urlData[0],
-//                                 title: req.body.title,
-//                                 condition: req.body.condition,
-//                                 description: req.body.description,
-//                                 price: req.body.price,
-//                             })
-
-//                             await newProduct.save()
-//                             try {
-//                                 fs.unlinkSync(req.files[0].path)
-//                                 //file removed
-//                             } catch (err) {
-//                                 console.error(err)
-//                             }
-//                             res.send({
-//                                 message: "product added",
-//                                 data: "Product created successfully"
-//                             });
-//                         }
-//                     })
-//                 } else {
-//                     console.log("err: ", err)
-//                     res.status(500).send(err);
-//                 }
-//             });
-
-
-//     } catch (error) {
-//         console.log('error', error)
-//         res.status(500).send({
-//             message: "faild to added product"
-//         });
-//     }
-// })
-
-// app.get("/userProducts", async (req, res) => {
-
-//     try {
-//         const products = await productModel.find({}).exec();
-//         console.log("all product: ", products);
-
-//         res.send({
-//             message: "all products",
-//             data: products
-//         });
-//     } catch (error) {
-//         res.status(500).send({
-//             message: "faild to get product"
-//         });
-//     }
-// })
 
 app.use((req, res) => {
     res.status(404).send('404 not found')
