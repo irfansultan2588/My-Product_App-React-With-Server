@@ -360,6 +360,31 @@ app.get("/orderlist", async (req, res) => {
     }
 })
 
+app.put("/profile/:id", async (req, res) => {
+    console.log("profile to be edited: ", req.body);
+
+    const update = {}
+    if (req.body.firstName) update.firstName = req.body.firstName
+    if (req.body.lastName) update.lastName = req.body.lastName
+    if (req.body.gender) update.gender = req.body.gender
+    if (req.body.address) update.address = req.body.address
+
+    try {
+        const updated = await userModel.findOneAndUpdate({ _id: req.params.id }, update, { new: true }
+        ).exec();
+        console.log("updated profile: ", updated);
+
+        res.send({
+            message: "profile updated successfuly",
+            data: updated
+        });
+    } catch (error) {
+        res.status(500).send({
+            message: "faild to upadate profile"
+        });
+    }
+})
+
 
 ////////////////////////////////
 app.get("/profile", async (req, res) => {
